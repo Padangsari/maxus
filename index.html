@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCTV RW8 PADANGSARI</title>
+  <!-- Library Hls.js untuk memutar format .m3u8 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <!-- Font Modern -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header { text-align: center; margin-bottom: 24px; }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    header p { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
+
+    /* Layout 4 Grid (2x2) */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      flex-grow: 1;
+    }
+
+    @media (max-width: 768px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+    }
+
+    /* Kartu CCTV */
+    .cctv-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .cctv-header {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #111827;
+      border-bottom: 1px solid #334155;
+    }
+    .cctv-title { font-weight: 600; font-size: 0.95rem; color: #e2e8f0; }
+
+    /* Badge Status */
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .status-badge.live { background-color: #ef4444; color: white; }
+    .status-badge.maintenance { background-color: #f59e0b; color: #1e293b; }
+
+    /* Container Video */
+    .video-container {
+      position: relative;
+      width: 100%;
+      background-color: #000;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 240px;
+    }
+    
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Label Pojok Kiri Bawah */
+    .cctv-label {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border-left: 3px solid #38bdf8;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Tombol Fullscreen */
+    .fs-button {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .fs-button:hover { background-color: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+
+    /* Tampilan Perbaikan */
+    .maintenance-overlay {
+      position: relative;
+      width: 100%;
+      background-color: #090d16;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      padding: 40px 20px;
+      min-height: 240px;
+    }
+    .maintenance-overlay svg { width: 45px; height: 45px; fill: #f59e0b; }
+    .maintenance-text { font-weight: 700; color: #cbd5e1; font-size: 1.1rem; letter-spacing: 0.05em; }
+    .maintenance-subtext { font-size: 0.85rem; color: #64748b; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CCTV RW8 PADANGSARI</h1>
+    <p>Pemantauan Wilayah Lingkungan RW 08</p>
+  </header>
+
+  <div class="grid-container">
+    
+    <!-- 1. cctv-wilayah rt.2 -->
+    <div class="cctv-card">
+      <div class="cctv-header">
+        <span class="cctv-title">cctv-wilayah rt.2</span>
+        <span class="status-badge live">Live</span>
+      </div>
+      <div class="video-container">
+        <video id="video_rt2" controls muted playsinline></video>
+        <div class="cctv-label">cctv-wilayah rt.2</div>
+        <button class="fs-button" onclick="openFullscreen('video_rt2')">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- 2. cctc-Badminton -->
+    <div class="cctv-card">
+      <div class="cctv-header">
+        <span class="cctv-title">cctc-Badminton</span>
+        <span class="status-badge live">Live</span>
+      </div>
+      <div class="video-container">
+        <video id="video_badminton" controls muted playsinline></video>
+        <div class="cctv-label">cctc-Badminton</div>
+        <button class="fs-button" onclick="openFullscreen('video_badminton')">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- 3. cctv-manuk wukwuk (Perbaikan) -->
+    <div class="cctv-card">
+      <div class="cctv-header">
+        <span class="cctv-title">cctv-manuk wukwuk</span>
+        <span class="status-badge maintenance">Perbaikan</span>
+      </div>
+      <div class="maintenance-overlay">
+        <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/></svg>
+        <div class="maintenance-text">CCTB PERBAIKAN</div>
+        <div class="maintenance-subtext">Sistem sedang dioptimasi oleh teknisi</div>
+        <div class="cctv-label">cctv-manuk wukwuk</div>
+      </div>
+    </div>
+
+    <!-- 4. cctv-gang ngopi (Perbaikan) -->
+    <div class="cctv-card">
+      <div class="cctv-header">
+        <span class="cctv-title">cctv-gang ngopi</span>
+        <span class="status-badge maintenance">Perbaikan</span>
+      </div>
+      <div class="maintenance-overlay">
+        <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.6z"/></svg>
+        <div class="maintenance-text">SEDANG PERBAIKAN</div>
+        <div class="maintenance-subtext">Koneksi area gang ngopi terputus sementara</div>
+        <div class="cctv-label">cctv-gang ngopi</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // URL Asli Tanpa Modifikasi
+    const urlRT2 = "https://livepantau.semarangkota.go.id/67b6b31a-7dfd-4edb-873e-57c3c5fb5d02/video1_stream.m3u8";
+    const urlBadminton = "https://livepantau.semarangkota.go.id/c6f87fcc-799c-4ec7-a650-e6f4fec64124/video1_stream.m3u8";
+
+    function muatStream(idVideo, urlStream) {
+      const video = document.getElementById(idVideo);
+      
+      if (Hls.isSupported()) {
+        const hls = new Hls({ maxMaxBufferLength: 8 });
+        hls.loadSource(urlStream);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play().catch(() => console.log("Menunggu interaksi klik untuk play"));
+        });
+      } 
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = urlStream;
+        video.addEventListener('loadedmetadata', function() {
+          video.play();
+        });
+      }
+    }
+
+    // Solusi Jitu Fullscreen di Google Sites: Memicu langsung sistem video player browser
+    function openFullscreen(idVideo) {
+      const video = document.getElementById(idVideo);
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) { /* Safari */
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) { /* IE11 */
+        video.msRequestFullscreen();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      muatStream('video_rt2', urlRT2);
+      muatStream('video_badminton', urlBadminton);
+    });
+  </script>
+</body>
+</html>
